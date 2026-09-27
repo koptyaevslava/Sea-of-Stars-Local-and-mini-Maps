@@ -1,6 +1,6 @@
-# Sea of Stars Local Map
+# Sea of Stars Local and mini Maps
 
-Local Map adds a circular minimap and a full exploration map to 97 local areas in the Windows version of Sea of Stars.
+Sea of Stars Local and mini Maps adds a circular minimap and a full exploration map to 97 local areas in the Windows version of Sea of Stars.
 
 The mod uses pre-rendered map geometry with persistent exploration fog. It tracks the player, reveals travelled paths, and displays discovered campfires and save points. The full map integrates with the existing location title and party status panels.
 
