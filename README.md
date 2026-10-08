@@ -1,12 +1,14 @@
 # Sea of Stars Local and mini Maps
 
-Sea of Stars Local and mini Maps adds a circular minimap and a full exploration map to 97 local areas in the Windows version of Sea of Stars.
+Sea of Stars Local and mini Maps adds a circular minimap and a full exploration map to 99 local areas in the Windows version of Sea of Stars.
+
+Current source version: 0.9.4.
 
 The mod uses pre-rendered map geometry with persistent exploration fog. It tracks the player, reveals travelled paths, and displays discovered campfires and save points. The full map integrates with the existing location title and party status panels.
 
 ## Features
 
-- 97 authored local maps
+- 99 authored local maps, including X'tol's Landing and Evermist Island's Landing
 - Fixed-scale circular minimap
 - Full map with zoom, pan, return-to-player, and fit-to-map controls
 - Persistent exploration fog with continuous path reveal

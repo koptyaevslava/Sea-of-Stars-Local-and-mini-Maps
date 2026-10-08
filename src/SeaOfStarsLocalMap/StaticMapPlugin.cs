@@ -207,8 +207,28 @@ public sealed class StaticMapTileManifest
         first.Length == 3 && second.Length == 3 && first[0] == second[0] && first[1] == second[1] && first[2] == second[2];
 }
 
+// Giant landing sites are streamed into WorldMap, while CurrentLevel remains
+// WorldMap. The game's custom location reference tracks entering/leaving them.
+public static class StaticMapLocation
+{
+    public const string WorldMapGuid = "4776b2f6ccdb0fe4195c6c0d89206875";
+    public const string IxtolLandingGuid = "3e7c595932b2b3d418289273c55c2b73";
+    public const string EvermistLandingGuid = "7f99d660b270cd54abfd6eaeec28dca1";
+
+    public static bool IsWorldMap(string guid) =>
+        string.Equals(guid, WorldMapGuid, StringComparison.OrdinalIgnoreCase);
+
+    public static bool IsLanding(string guid) =>
+        string.Equals(guid, IxtolLandingGuid, StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(guid, EvermistLandingGuid, StringComparison.OrdinalIgnoreCase);
+
+    public static string Resolve(string currentGuid, string customLocationGuid, bool streamingReady) =>
+        IsWorldMap(currentGuid) && streamingReady && IsLanding(customLocationGuid)
+            ? customLocationGuid.ToLowerInvariant() : currentGuid ?? "";
+}
+
 #if !STATIC_MAP_TESTS
-[BepInPlugin("local.seaofstars.localmap", "Local Map", "0.9.3")]
+[BepInPlugin("local.seaofstars.localmap", "Local Map", "0.9.4")]
 public sealed class StaticMapPlugin : BasePlugin
 {
     internal static ManualLogSource Logger;
@@ -219,7 +239,7 @@ public sealed class StaticMapPlugin : BasePlugin
         ShowMini = Config.Bind("StaticMap", "ShowMinimap", true, "Show the round minimap while exploring a supported location.");
         AddComponent<StaticMapOverlay>();
         new Harmony("local.seaofstars.localmap.nativeui").PatchAll(typeof(StaticMapPlugin).Assembly);
-        Log.LogInfo("Static Local Map 0.9.3 test build ready with memory-budgeted detail tiles and performance diagnostics.");
+        Log.LogInfo("Static Local Map 0.9.4 ready with streamed giant landing maps.");
     }
 }
 
@@ -434,10 +454,22 @@ public sealed class StaticMapOverlay : MonoBehaviour
     }
 
     [HideFromIl2Cpp]
-    private void PollLocation()
+    private static string CurrentMapGuid()
     {
         var level = LevelManager.Instance;
-        string guid = level != null && !level.LoadingLevel ? level.CurrentLevel.levelDefinitionGuid : "";
+        if (level == null || level.LoadingLevel) return "";
+        string guid = level.CurrentLevel.levelDefinitionGuid;
+        if (!StaticMapLocation.IsWorldMap(guid)) return guid;
+        var world = StreamingWorldMapManager.Instance;
+        return StaticMapLocation.Resolve(guid,
+            world == null ? null : world.CurrentCustomMapLocation.levelDefinitionGuid,
+            world != null && world.IsReady && !world.WorldMapIsDisposing);
+    }
+
+    [HideFromIl2Cpp]
+    private void PollLocation()
+    {
+        string guid = CurrentMapGuid();
         string saveId = SaveManager.Instance?.LoadedSaveGameSlot?.saveId;
         bool valid = StaticMapMetadata.IsGuid(guid) && !string.IsNullOrWhiteSpace(saveId) && PlayerPartyManager.Instance?.Leader != null;
         string nextIdentity = valid ? saveId + "|" + guid : "";
@@ -454,7 +486,12 @@ public sealed class StaticMapOverlay : MonoBehaviour
     {
         string folder = Path.Combine(Paths.PluginPath, "LocalMap", "Maps", guid);
         string jsonPath = Path.Combine(folder, "map.json");
-        if (!File.Exists(jsonPath)) return;
+        if (!File.Exists(jsonPath))
+        {
+            if (StaticMapLocation.IsLanding(guid))
+                StaticMapPlugin.Logger.LogWarning("Missing giant landing map: " + guid + ".");
+            return;
+        }
         if (new FileInfo(jsonPath).Length > 65536) throw new InvalidDataException("Map metadata is too large.");
         string json = File.ReadAllText(jsonPath, Encoding.UTF8);
         var info = StaticMapMetadata.Parse(json, guid);
@@ -856,7 +893,7 @@ public sealed class StaticMapOverlay : MonoBehaviour
     private bool HiddenByGame()
     {
         var level = LevelManager.Instance;
-        if (!available || level == null || level.LoadingLevel || metadata == null || level.CurrentLevel.levelDefinitionGuid != metadata.LevelGuid) return true;
+        if (!available || level == null || level.LoadingLevel || metadata == null || CurrentMapGuid() != metadata.LevelGuid) return true;
         if (CombatManager.Instance?.CurrentEncounter != null || CutsceneManager.Instance?.IsInCutscene == true || Teleporter.IsTeleporting) return true;
         if (PauseManager.Instance?.IsPaused == true && !ownsPause) return true;
         var ui = UIManager.Instance;

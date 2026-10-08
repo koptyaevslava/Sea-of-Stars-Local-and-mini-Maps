@@ -16,8 +16,8 @@ using System.Windows.Forms;
 
 [assembly: AssemblyTitle("Sea of Stars Local Map Installer")]
 [assembly: AssemblyProduct("Sea of Stars Local Map Installer")]
-[assembly: AssemblyVersion("0.9.3.0")]
-[assembly: AssemblyFileVersion("0.9.3.0")]
+[assembly: AssemblyVersion("0.9.4.0")]
+[assembly: AssemblyFileVersion("0.9.4.0")]
 
 namespace SeaOfStarsLocalMapInstaller
 {

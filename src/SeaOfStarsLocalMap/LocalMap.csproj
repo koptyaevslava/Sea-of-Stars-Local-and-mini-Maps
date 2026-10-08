@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>SeaOfStarsLocalMap</AssemblyName>
-    <Version>0.9.3</Version>
+    <Version>0.9.4</Version>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <GameDir Condition="'$(GameDir)' == ''">$(SEA_OF_STARS_DIR)</GameDir>
     <Core>$(GameDir)/BepInEx/core</Core>

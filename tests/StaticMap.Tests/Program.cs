@@ -10,6 +10,22 @@ void Throws<T>(Action action) where T : Exception
     throw new Exception("Expected " + typeof(T).Name);
 }
 var bounds = new MapWorldRect(-10, -5, 10, 5);
+Test("Streamed giant landing maps follow the native custom location", () =>
+{
+    string world = StaticMapLocation.WorldMapGuid;
+    string ixtol = StaticMapLocation.IxtolLandingGuid;
+    string evermist = StaticMapLocation.EvermistLandingGuid;
+    Check(StaticMapLocation.Resolve(world, ixtol, true) == ixtol, "Ixtol landing was treated as global map");
+    Check(StaticMapLocation.Resolve(world, evermist, true) == evermist, "Evermist landing was treated as global map");
+    Check(StaticMapLocation.Resolve(world, ixtol.ToUpperInvariant(), true) == ixtol, "landing folder GUID was not normalized");
+    Check(StaticMapLocation.Resolve(world, null, true) == world, "leaving a landing retained its map");
+    Check(StaticMapLocation.Resolve(world, "", true) == world, "empty custom location retained a map");
+    Check(StaticMapLocation.Resolve(world, ixtol, false) == world, "disposing or unready world retained a landing");
+    string regular = "72e9f2699f7c8394b93afa1d273ce67a";
+    Check(StaticMapLocation.Resolve(regular, ixtol, true) == regular, "stale custom location replaced a regular local map");
+    Check(StaticMapLocation.Resolve(world, regular, true) == world, "an unrelated world section became a local map");
+    Check(StaticMapLocation.Resolve(null, ixtol, true) == "", "landing selected without a loaded main level");
+});
 StaticFog Fog(string id = "cave-floor-01-v1") => new StaticFog(80, 40, bounds, id);
 byte At(StaticFog fog, double x, double y)
 {

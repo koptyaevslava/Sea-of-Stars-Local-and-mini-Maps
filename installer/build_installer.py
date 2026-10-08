@@ -10,7 +10,7 @@ import subprocess
 import zipfile
 
 
-VERSION = "0.9.3"
+VERSION = "0.9.4"
 ROOT = Path(__file__).resolve().parent
 WORKSPACE = ROOT.parent
 SOURCE = WORKSPACE / "payload/LocalMap"
@@ -40,8 +40,8 @@ def active_payload_files() -> list[Path]:
     selected.update(path for path in ui.rglob("*") if path.is_file())
 
     map_folders = sorted(path for path in (SOURCE / "Maps").iterdir() if path.is_dir())
-    if len(map_folders) != 97:
-        raise RuntimeError("Local Map payload must contain exactly 97 map folders")
+    if len(map_folders) != 99:
+        raise RuntimeError("Local Map payload must contain exactly 99 map folders")
     for folder in map_folders:
         for name in ("map.json", "base.png", "base-hd.png", "image-hd.json", "tiles-5x.json"):
             path = folder / name
@@ -126,7 +126,7 @@ def write_readme(count: int, total: int) -> None:
 3. The installer detects a Steam installation or lets you select the folder that contains SeaOfStars.exe.
 4. Select INSTALL.
 
-The package contains only Local Map files: the plug-in DLL, UI assets, and 97 local maps.
+The package contains only Local Map files: the plug-in DLL, UI assets, and 99 local maps.
 It does not include BepInEx or any other mod. Install BepInEx 6 for IL2CPP before Local Map.
 
 Installation uses a staging directory, verifies every SHA-256 checksum, and rolls back if the final swap fails.

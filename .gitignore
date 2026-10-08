@@ -24,3 +24,5 @@ payload/*
 *.assets
 *.resS
 *.log
+__pycache__/
+*.pyc

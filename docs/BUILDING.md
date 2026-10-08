@@ -19,7 +19,7 @@ The build never copies files into the game directory.
 
 ## Tests
 
-The managed projection, fog, persistence, and viewport tests do not require the game:
+The managed projection, fog, persistence, viewport, and location selection tests do not require the game:
 
 ```powershell
 dotnet run --project tests\StaticMap.Tests\StaticMap.Tests.csproj -c Release
@@ -44,6 +44,8 @@ payload/LocalMap/
     tiles-5x-512/*.png
 ```
 
+Version 0.9.4 requires 99 map folders, including X'tol's Landing and Evermist Island's Landing. Use the 0.9.4 plug-in DLL with these maps; adding the map data to an older plug-in does not fix landing selection.
+
 The installer builder reads only files required by the active manifests. Old tile directories and rollback manifests are excluded even if they exist in the local working payload.
 
 ## Installer
@@ -54,7 +56,7 @@ Run:
 python installer\build_installer.py
 ```
 
-Output is written to `dist/LocalMap-Installer-0.9.3`. Keep the installer executable and `.lmpkg` file together. SHA-256 files are generated for both release artifacts.
+Output is written to `dist/LocalMap-Installer-0.9.4`. Keep the installer executable and `.lmpkg` file together. SHA-256 files are generated for both release artifacts.
 
 The installer supports these command-line operations:
 
